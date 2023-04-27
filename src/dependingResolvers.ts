@@ -25,8 +25,10 @@ const saveDependee = combineResolvers(
  * @param {Function} resolver Resolver implementation.
  * @return {Promise}.
  */
-export const isDependee = (resolver: Resolver): Resolver => (root, ...rest) =>
-  saveDependee(resolver(root, ...rest), ...rest)
+export const isDependee =
+  (resolver: Resolver): Resolver =>
+  (root, ...rest) =>
+    saveDependee(resolver(root, ...rest), ...rest)
 
 interface DependeeContext {
   fieldName: string
@@ -47,15 +49,12 @@ interface DependeeContext {
  * @param {String} dependeeName The name of the dependee to check the parent against
  * @return {Function} Resolver to error when no dependee is found.
  */
-const dependeeExists = (dependeeName: string): Resolver => (
-  _,
-  __,
-  ___,
-  { fieldName, parentType: { _fields, name: parent } }: DependeeContext,
-) =>
-  !_fields[dependeeName]
-    ? new Error(`Cannot get dependee "${dependeeName}" from field "${fieldName}" on type "${parent}"`)
-    : skip
+const dependeeExists =
+  (dependeeName: string): Resolver =>
+  (_, __, ___, { fieldName, parentType: { _fields, name: parent } }: DependeeContext) =>
+    !_fields[dependeeName]
+      ? new Error(`Cannot get dependee "${dependeeName}" from field "${fieldName}" on type "${parent}"`)
+      : skip
 
 /**
  * Resolver implementation to retrieve the resolved value of a dependee sibling field.

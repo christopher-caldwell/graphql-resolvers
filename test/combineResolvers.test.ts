@@ -5,11 +5,7 @@ import { makeExecutableSchema } from 'graphql-tools'
 import { skip } from '../src/utils'
 import { combineResolvers } from '../src/combineResolvers'
 
-import {
-  resolvers as utilResolvers,
-  promiseResolvers,
-  spyResolvers,
-} from './helpers'
+import { resolvers as utilResolvers, promiseResolvers, spyResolvers } from './helpers'
 
 describe('combineResolvers', () => {
   beforeEach(jest.clearAllMocks)
@@ -21,8 +17,8 @@ describe('combineResolvers', () => {
       expect(
         typeof combineResolvers(
           () => {},
-          () => {}
-        )
+          () => {},
+        ),
       ).toBe('function')
     })
 
@@ -45,9 +41,7 @@ describe('combineResolvers', () => {
     })
 
     it('should reject with thrown errors', () => {
-      expect(combineResolvers(utilResolvers.thrownError)()).rejects.toThrow(
-        'some throw error'
-      )
+      expect(combineResolvers(utilResolvers.thrownError)()).rejects.toThrow('some throw error')
     })
 
     it('should call resolver with all arguments received', async () => {
@@ -61,10 +55,7 @@ describe('combineResolvers', () => {
 
   describe('two resolvers', () => {
     it('should resolve only first value', () => {
-      const resolver = combineResolvers(
-        utilResolvers.string,
-        utilResolvers.other
-      )
+      const resolver = combineResolvers(utilResolvers.string, utilResolvers.other)
       expect(resolver()).resolves.toBe('string')
       expect(resolver()).resolves.not.toBe('other')
     })
@@ -78,11 +69,7 @@ describe('combineResolvers', () => {
 
   describe('multiple resolvers', () => {
     it('should only execute resolvers until a value is resolved', async () => {
-      await combineResolvers(
-        spyResolvers.empty,
-        spyResolvers.string,
-        spyResolvers.other
-      )()
+      await combineResolvers(spyResolvers.empty, spyResolvers.string, spyResolvers.other)()
 
       expect(spyResolvers.empty).toHaveBeenCalledTimes(1)
       expect(spyResolvers.string).toHaveBeenCalledTimes(1)
@@ -90,11 +77,7 @@ describe('combineResolvers', () => {
     })
 
     it('should only execute resolvers until a value is resolved', async () => {
-      await combineResolvers(
-        spyResolvers.empty,
-        spyResolvers.error,
-        spyResolvers.string
-      )()
+      await combineResolvers(spyResolvers.empty, spyResolvers.error, spyResolvers.string)()
 
       expect(spyResolvers.empty).toHaveBeenCalledTimes(1)
       expect(spyResolvers.error).toHaveBeenCalledTimes(1)
@@ -104,9 +87,7 @@ describe('combineResolvers', () => {
 
   describe('promises', () => {
     it('should return single promised resolver value', () => {
-      expect(combineResolvers(promiseResolvers.string)()).resolves.toBe(
-        'string'
-      )
+      expect(combineResolvers(promiseResolvers.string)()).resolves.toBe('string')
     })
 
     it('should return errors when throwing inside resolvers', () => {
@@ -121,17 +102,14 @@ describe('combineResolvers', () => {
      * Sample resolver which returns an error in case no user
      * is available in the provided context.
      */
-    const isAuthenticated = (root, args, { user }) =>
-      user ? skip : new Error('Not authenticated')
+    const isAuthenticated = (root, args, { user }) => (user ? skip : new Error('Not authenticated'))
 
     /**
      * Sample resolver which returns an error in case user
      * is not admin.
      */
-    const isAdmin = combineResolvers(
-      isAuthenticated,
-      (root, args, { user: { role } }) =>
-        role === 'admin' ? skip : new Error('Not admin')
+    const isAdmin = combineResolvers(isAuthenticated, (root, args, { user: { role } }) =>
+      role === 'admin' ? skip : new Error('Not admin'),
     )
 
     /**
@@ -140,16 +118,13 @@ describe('combineResolvers', () => {
      */
     const isNotUnderage = (minimumAge = 18) =>
       combineResolvers(isAuthenticated, (root, args, { user: { age } }) =>
-        age < minimumAge ? new Error(`User is underage ${minimumAge}`) : skip
+        age < minimumAge ? new Error(`User is underage ${minimumAge}`) : skip,
       )
 
     /**
      * Sample hello world resolver for a logged user.
      */
-    const hello = combineResolvers(
-      isAuthenticated,
-      (root, args, { user: { name } }) => `Hello, ${name}`
-    )
+    const hello = combineResolvers(isAuthenticated, (root, args, { user: { name } }) => `Hello, ${name}`)
 
     /**
      * Sample sensitive information resolver, for admins only.
@@ -160,9 +135,7 @@ describe('combineResolvers', () => {
      * Sample invalid option resolver for the voting system.
      */
     const isValidOption = (root, { choice }) =>
-      ['A', 'B', 'C'].indexOf(choice) > -1
-        ? skip
-        : new Error(`Option "${choice}" is invalid`)
+      ['A', 'B', 'C'].indexOf(choice) > -1 ? skip : new Error(`Option "${choice}" is invalid`)
 
     /**
      * Sample vote mutation.
@@ -171,7 +144,7 @@ describe('combineResolvers', () => {
       isNotUnderage(16),
       isValidOption,
       // Vote logic
-      () => true
+      () => true,
     )
 
     describe('functional', () => {
@@ -183,9 +156,7 @@ describe('combineResolvers', () => {
         })
 
         it('should return resolved value when user is logged in', () => {
-          expect(
-            hello(null, null, { user: { name: 'John Doe' } })
-          ).resolves.toBe('Hello, John Doe')
+          expect(hello(null, null, { user: { name: 'John Doe' } })).resolves.toBe('Hello, John Doe')
         })
       })
 
@@ -203,9 +174,7 @@ describe('combineResolvers', () => {
         })
 
         it('should return resolved value when user is admin', () => {
-          expect(
-            sensitive(null, null, { user: { role: 'admin' } })
-          ).resolves.toBe('shhhh!')
+          expect(sensitive(null, null, { user: { role: 'admin' } })).resolves.toBe('shhhh!')
         })
       })
 
@@ -229,9 +198,7 @@ describe('combineResolvers', () => {
         })
 
         it('should return true when vote is registered', () => {
-          expect(
-            vote(null, { choice: 'C' }, { user: { age: 18 } })
-          ).resolves.toBe(true)
+          expect(vote(null, { choice: 'C' }, { user: { age: 18 } })).resolves.toBe(true)
         })
       })
     })
@@ -262,50 +229,56 @@ describe('combineResolvers', () => {
 
       describe('hello', () => {
         it('should return error when no user is logged in', () => {
-          expect(
-            graphql(schema, '{ hello }', null, {})
-          ).resolves.toHaveProperty('errors.0.message', 'Not authenticated')
+          expect(graphql(schema, '{ hello }', null, {})).resolves.toHaveProperty(
+            'errors.0.message',
+            'Not authenticated',
+          )
         })
 
         it('should return resolved value when user is logged in', () => {
-          expect(
-            graphql(schema, '{ hello }', null, { user: { name: 'John Doe' } })
-          ).resolves.toHaveProperty('data.hello', 'Hello, John Doe')
+          expect(graphql(schema, '{ hello }', null, { user: { name: 'John Doe' } })).resolves.toHaveProperty(
+            'data.hello',
+            'Hello, John Doe',
+          )
         })
       })
 
       describe('sensitive', () => {
         it('should return error when no user is logged in', () => {
-          expect(
-            graphql(schema, '{ sensitive }', null, {})
-          ).resolves.toHaveProperty('errors.0.message', 'Not authenticated')
+          expect(graphql(schema, '{ sensitive }', null, {})).resolves.toHaveProperty(
+            'errors.0.message',
+            'Not authenticated',
+          )
         })
 
         it('should return error when no user is logged in', () => {
-          expect(
-            graphql(schema, '{ sensitive }', null, { user: {} })
-          ).resolves.toHaveProperty('errors.0.message', 'Not admin')
+          expect(graphql(schema, '{ sensitive }', null, { user: {} })).resolves.toHaveProperty(
+            'errors.0.message',
+            'Not admin',
+          )
         })
 
         it('should return resolved value when user is admin', () => {
-          expect(
-            graphql(schema, '{ sensitive }', null, { user: { role: 'admin' } })
-          ).resolves.toHaveProperty('data.sensitive', 'shhhh!')
+          expect(graphql(schema, '{ sensitive }', null, { user: { role: 'admin' } })).resolves.toHaveProperty(
+            'data.sensitive',
+            'shhhh!',
+          )
         })
       })
 
       describe('vote', () => {
         it('should return error when no user is logged in', () => {
-          expect(
-            graphql(schema, 'mutation { vote(choice: "A") }', null, {})
-          ).resolves.toHaveProperty('errors.0.message', 'Not authenticated')
+          expect(graphql(schema, 'mutation { vote(choice: "A") }', null, {})).resolves.toHaveProperty(
+            'errors.0.message',
+            'Not authenticated',
+          )
         })
 
         it('should return error when user is underage', () => {
           expect(
             graphql(schema, 'mutation { vote(choice: "B") }', null, {
               user: { age: 10 },
-            })
+            }),
           ).resolves.toHaveProperty('errors.0.message', 'User is underage 16')
         })
 
@@ -313,7 +286,7 @@ describe('combineResolvers', () => {
           expect(
             graphql(schema, 'mutation { vote(choice: "Z") }', null, {
               user: { age: 18 },
-            })
+            }),
           ).resolves.toHaveProperty('errors.0.message', 'Option "Z" is invalid')
         })
 
@@ -321,7 +294,7 @@ describe('combineResolvers', () => {
           expect(
             graphql(schema, 'mutation { vote(choice: "C") }', null, {
               user: { age: 18 },
-            })
+            }),
           ).resolves.toHaveProperty('data.vote', true)
         })
       })

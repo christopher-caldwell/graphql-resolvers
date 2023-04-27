@@ -6,11 +6,7 @@ import { makeExecutableSchema } from 'graphql-tools'
 
 import { pipeResolvers } from '../src/pipeResolvers'
 
-import {
-  resolvers as utilResolvers,
-  promiseResolvers,
-  spyResolvers,
-} from './helpers'
+import { resolvers as utilResolvers, promiseResolvers, spyResolvers } from './helpers'
 
 describe('pipeResolvers', () => {
   beforeEach(jest.clearAllMocks)
@@ -22,8 +18,8 @@ describe('pipeResolvers', () => {
       expect(
         typeof pipeResolvers(
           () => {},
-          () => {}
-        )
+          () => {},
+        ),
       ).toEqual('function')
     })
 
@@ -46,9 +42,7 @@ describe('pipeResolvers', () => {
     })
 
     it('should reject with thrown errors', () => {
-      expect(pipeResolvers(utilResolvers.thrownError)()).rejects.toThrow(
-        'some throw error'
-      )
+      expect(pipeResolvers(utilResolvers.thrownError)()).rejects.toThrow('some throw error')
     })
 
     it('should call resolver with all arguments received', async () => {
@@ -62,20 +56,13 @@ describe('pipeResolvers', () => {
 
   describe('two resolvers', () => {
     it('should resolve only last value', () => {
-      expect(
-        pipeResolvers(utilResolvers.string, utilResolvers.other)()
-      ).resolves.toEqual('other')
+      expect(pipeResolvers(utilResolvers.string, utilResolvers.other)()).resolves.toEqual('other')
 
-      expect(
-        pipeResolvers(utilResolvers.string, utilResolvers.other)()
-      ).resolves.not.toEqual('string')
+      expect(pipeResolvers(utilResolvers.string, utilResolvers.other)()).resolves.not.toEqual('string')
     })
 
     it('should execute resolvers in a pipe until last value is resolved', async () => {
-      const result = await pipeResolvers(
-        spyResolvers.string,
-        spyResolvers.other
-      )(1)
+      const result = await pipeResolvers(spyResolvers.string, spyResolvers.other)(1)
 
       expect(spyResolvers.string).toHaveBeenCalledTimes(1)
       expect(spyResolvers.string).toHaveBeenCalledWith(1)
@@ -87,11 +74,7 @@ describe('pipeResolvers', () => {
 
   describe('multiple resolvers', () => {
     it('should execute resolvers in a pipe until last value is resolved', async () => {
-      const result = await pipeResolvers(
-        spyResolvers.empty,
-        spyResolvers.string,
-        spyResolvers.other
-      )(1)
+      const result = await pipeResolvers(spyResolvers.empty, spyResolvers.string, spyResolvers.other)(1)
 
       expect(spyResolvers.empty).toHaveBeenCalledTimes(1)
       expect(spyResolvers.empty).toHaveBeenCalledWith(1)
@@ -102,32 +85,24 @@ describe('pipeResolvers', () => {
     })
 
     it('should execute resolvers in a pipe until error resolved', async () => {
-      const result = await pipeResolvers(
-        spyResolvers.empty,
-        spyResolvers.error,
-        spyResolvers.string
-      )(1)
+      const result = await pipeResolvers(spyResolvers.empty, spyResolvers.error, spyResolvers.string)(1)
 
       expect(spyResolvers.empty).toHaveBeenCalledTimes(1)
       expect(spyResolvers.empty).toHaveBeenCalledWith(1)
       expect(spyResolvers.error).toHaveBeenCalledTimes(1)
       expect(spyResolvers.error).toHaveBeenCalledWith(undefined)
       expect(spyResolvers.string).not.toHaveBeenCalled()
-      expect(result)
-        .toBeInstanceOf(Error)
-        .toHaveProperty('message', 'some returned error')
+      expect(result).toBeInstanceOf(Error).toHaveProperty('message', 'some returned error')
     })
 
     it('should execute resolvers in a pipe until error throw', async () => {
       const result = await pipeResolvers(
         spyResolvers.empty,
         spyResolvers.thrownError,
-        spyResolvers.string
-      )(1).catch(err => err)
+        spyResolvers.string,
+      )(1).catch((err) => err)
 
-      expect(result)
-        .toBeInstanceOf(Error)
-        .toHaveProperty('message', 'some throw error')
+      expect(result).toBeInstanceOf(Error).toHaveProperty('message', 'some throw error')
 
       expect(spyResolvers.empty).toHaveBeenCalledTimes(1)
       expect(spyResolvers.empty).toHaveBeenCalledWith(1)
@@ -139,9 +114,7 @@ describe('pipeResolvers', () => {
 
   describe('promises', () => {
     it('should return single promised resolver value', () => {
-      expect(pipeResolvers(promiseResolvers.string)()).resolves.toEqual(
-        'string'
-      )
+      expect(pipeResolvers(promiseResolvers.string)()).resolves.toEqual('string')
     })
 
     it('should return errors when throwing inside resolvers', () => {
@@ -160,7 +133,7 @@ describe('pipeResolvers', () => {
     /**
      * Sample resolver for whether user is logged in or not.
      */
-    const loggedIn = pipeResolvers(user, currentUser => !!currentUser)
+    const loggedIn = pipeResolvers(user, (currentUser) => !!currentUser)
 
     const election = () => ({
       id: 1,
@@ -177,21 +150,14 @@ describe('pipeResolvers', () => {
     /**
      * Sample resolver for an array of votes.
      */
-    const votes = currentElection => currentElection.votes
+    const votes = (currentElection) => currentElection.votes
 
     /**
      * Sample resolver for the calculation of winner choice.
      */
     const winningChoice = pipeResolvers(
       votes,
-      pipe(
-        groupBy(prop('choice')),
-        values,
-        sortBy(length),
-        last,
-        last,
-        prop('choice')
-      )
+      pipe(groupBy(prop('choice')), values, sortBy(length), last, last, prop('choice')),
     )
 
     describe('functional', () => {
@@ -249,46 +215,45 @@ describe('pipeResolvers', () => {
 
       describe('authentication', () => {
         it('should resolve user object from context', () => {
-          expect(
-            graphql(schema, '{ user { id } }', null, { user: { id: 3 } })
-          ).resolves.toHaveProperty('data.user.id', 3)
+          expect(graphql(schema, '{ user { id } }', null, { user: { id: 3 } })).resolves.toHaveProperty(
+            'data.user.id',
+            3,
+          )
         })
 
         describe('loggedIn', () => {
           it('should resolve logged in true when user is available', () => {
-            expect(
-              graphql(schema, '{ loggedIn }', null, { user: { id: 3 } })
-            ).resolves.toHaveProperty('data.loggedIn', true)
+            expect(graphql(schema, '{ loggedIn }', null, { user: { id: 3 } })).resolves.toHaveProperty(
+              'data.loggedIn',
+              true,
+            )
           })
 
           it('should resolve logged in false when user is not available', () => {
-            expect(
-              graphql(schema, '{ loggedIn }', null, {})
-            ).resolves.toHaveProperty('data.loggedIn', false)
+            expect(graphql(schema, '{ loggedIn }', null, {})).resolves.toHaveProperty('data.loggedIn', false)
           })
         })
       })
 
       describe('election', () => {
         it('should resolve election object', () => {
-          expect(
-            graphql(schema, '{ election { id } }', null, {})
-          ).resolves.toHaveProperty('data.election.id', 1)
+          expect(graphql(schema, '{ election { id } }', null, {})).resolves.toHaveProperty('data.election.id', 1)
         })
 
         describe('votes', () => {
           it('should resolve votes array from election', () => {
-            expect(
-              graphql(schema, '{ election { votes { id } } }', null, {})
-            ).resolves.toHaveProperty('data.election.votes')
+            expect(graphql(schema, '{ election { votes { id } } }', null, {})).resolves.toHaveProperty(
+              'data.election.votes',
+            )
           })
         })
 
         describe('winningChoice', () => {
           it('should resolve winningChoice from election votes', () => {
-            expect(
-              graphql(schema, '{ election { winningChoice } }', null, {})
-            ).resolves.toHaveProperty('data.election.winningChoice', 'C')
+            expect(graphql(schema, '{ election { winningChoice } }', null, {})).resolves.toHaveProperty(
+              'data.election.winningChoice',
+              'C',
+            )
           })
         })
       })

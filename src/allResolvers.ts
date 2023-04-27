@@ -6,5 +6,7 @@ import { Resolver } from './utils'
  * @param {[Function]} resolvers Array of resolvers.
  * @return {Function} resolver.
  */
-export const allResolvers = (resolvers: Resolver[]): Resolver => (...args) =>
-  Promise.all(resolvers.map(resolver => resolver(...args)))
+export const allResolvers =
+  (resolvers: Resolver[]): Resolver =>
+  (...args) =>
+    Promise.all(resolvers.map((resolver) => resolver(...args)))

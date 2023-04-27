@@ -23,7 +23,7 @@ export const promiseResolvers = Object.keys(resolvers).reduce(
     Object.assign(result, {
       [key]: async (...args) => await resolvers[key](...args),
     }),
-  {}
+  {},
 )
 
 // Wrap every resolver in spies for tests.
@@ -32,5 +32,5 @@ export const spyResolvers = Object.keys(resolvers).reduce(
     Object.assign(result, {
       [key]: jest.fn(resolvers[key]),
     }),
-  {}
+  {},
 )

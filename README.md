@@ -9,11 +9,11 @@ Resolver composition library for GraphQL
 
 ---
 
-This library consists of simple *[but well tested](https://codecov.io/github/lucasconstantino/graphql-resolvers)* helper functions for combining other functions into more specialized ones.
+This library consists of simple _[but well tested](https://codecov.io/github/lucasconstantino/graphql-resolvers)_ helper functions for combining other functions into more specialized ones.
 
 ## Installation
 
-This package is available on [npm](https://www.npmjs.com/package/graphql-resolvers) as: *graphql-resolvers*
+This package is available on [npm](https://www.npmjs.com/package/graphql-resolvers) as: _graphql-resolvers_
 
 ```
 npm install graphql-resolvers
@@ -23,7 +23,7 @@ npm install graphql-resolvers
 
 ## Motivation
 
-Many times we end-up repeating lots of logic on our resolvers. Access control, for instance, is something that can be done in the resolver level but just tends to end up with repeated code, even when creating services for such a task. This package aims to make it easier to build smart resolvers with logic being reusable and split in small pieces. Think *[recompose](https://github.com/acdlite/recompose)*, but for GraphQL resolvers.
+Many times we end-up repeating lots of logic on our resolvers. Access control, for instance, is something that can be done in the resolver level but just tends to end up with repeated code, even when creating services for such a task. This package aims to make it easier to build smart resolvers with logic being reusable and split in small pieces. Think _[recompose](https://github.com/acdlite/recompose)_, but for GraphQL resolvers.
 
 ## Documentation
 

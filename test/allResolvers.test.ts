@@ -22,16 +22,13 @@ describe('allResolvers', () => {
 
   it('should resolve multiple resolvers', () => {
     //@ts-expect-error
-    expect(allResolvers([stringResolver, numberResolver])()).resolves.toEqual([
-      'string',
-      2
-    ])
+    expect(allResolvers([stringResolver, numberResolver])()).resolves.toEqual(['string', 2])
   })
 
   it('should resolve composed resolvers', () => {
     expect(
       //@ts-expect-error
-      allResolvers([stringResolver, numberResolver, pipedResolver])()
+      allResolvers([stringResolver, numberResolver, pipedResolver])(),
     ).resolves.toEqual(['string', 2, 2])
   })
 

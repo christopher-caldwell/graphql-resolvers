@@ -50,24 +50,20 @@ const typeDefs = `
  * Sample resolver which returns an error in case no user
  * is available in the provided context.
  */
-const isAuthenticated = (root, args, { user }) => user ? skip : new Error('Not authenticated')
+const isAuthenticated = (root, args, { user }) => (user ? skip : new Error('Not authenticated'))
 
 /**
  * Sample resolver which returns an error in case user
  * is not admin.
  */
-const isAdmin = combineResolvers(
-  isAuthenticated,
-  (root, args, { user: { role } }) => role === 'admin' ? skip : new Error('Not authorized')
+const isAdmin = combineResolvers(isAuthenticated, (root, args, { user: { role } }) =>
+  role === 'admin' ? skip : new Error('Not authorized'),
 )
 
 /**
  * Sample sensitive information resolver, for admins only.
  */
-const sensitive = combineResolvers(
-  isAdmin,
-  (root, args, { user: { name } }) => 'shhhh!'
-)
+const sensitive = combineResolvers(isAdmin, (root, args, { user: { name } }) => 'shhhh!')
 
 // Resolver map
 const resolvers = { Query: { sensitive } }
@@ -75,7 +71,7 @@ const resolvers = { Query: { sensitive } }
 const schema = makeExecutableSchema({ typeDefs, resolvers })
 
 // Resolves with a "Non authenticated" error.
-graphql(schema, '{ sensitive }', null, { }).then(console.log)
+graphql(schema, '{ sensitive }', null, {}).then(console.log)
 
 // Resolves with a "Not authorized" error.
 graphql(schema, '{ sensitive }', null, { user: { role: 'some-role' } }).then(console.log)
@@ -133,8 +129,8 @@ const user = pipeResolvers(getRequest, ({ user }) => user)
 const schema = makeExecutableSchema({
   typeDefs,
   resolvers: {
-    Query: { user }
-  }
+    Query: { user },
+  },
 })
 
 // Resolves with { data: { user: null } }
@@ -170,7 +166,7 @@ resolveDependee(
 ): ResolverFunction
 ```
 
-Factory for a resolver which would resolve a sibling field's value. If *dependeeName* field is not a Scalar, it will run it's resolver function.
+Factory for a resolver which would resolve a sibling field's value. If _dependeeName_ field is not a Scalar, it will run it's resolver function.
 
 #### `resolveDependees()`
 
@@ -240,18 +236,15 @@ const votes = isDependee(() => votesData)
  * From the data above we know 'C' is the winning choice,
  * so to simplify things we will resolve it statically.
  */
-const winningChoice = pipeResolvers(
-  resolveDependee('votes'),
-  votes => {
-    // ...computed winning choice from array of votes.
-    return 'C'
-  }
-)
+const winningChoice = pipeResolvers(resolveDependee('votes'), (votes) => {
+  // ...computed winning choice from array of votes.
+  return 'C'
+})
 
 export const resolvers = {
   Query: {
     votes,
     winningChoice,
-  }
+  },
 }
 ```
